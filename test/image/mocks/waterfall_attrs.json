@@ -8,7 +8,7 @@
             "x": [1, 2, 3, 4],
             "decreasing": { "marker": { "color": "Blue" } },
             "increasing": { "marker": { "color": "Blue" } },
-            "totals": { "color": "Blue" },
+            "totals": { "marker": { "color": "Blue" } },
             "opacity": 0.5,
             "connector": { "visible": false },
             "type": "waterfall"
