@@ -7,8 +7,6 @@ var Drawing = require('@src/components/drawing');
 
 var Axes = require('@src/plots/cartesian/axes');
 
-var click = require('../assets/click');
-var DBLCLICKDELAY = require('../../../src/constants/interactions').DBLCLICKDELAY;
 var createGraphDiv = require('../assets/create_graph_div');
 var destroyGraphDiv = require('../assets/destroy_graph_div');
 var failTest = require('../assets/fail_test');
@@ -617,26 +615,6 @@ describe('A waterfall plot', function() {
         };
     }
 
-    function assertTextFontFamilies(expFontFamilies) {
-        return function() {
-            var selection = d3.selectAll(WATERFALL_TEXT_SELECTOR);
-            expect(selection.size()).toBe(expFontFamilies.length);
-            selection.each(function(d, i) {
-                expect(this.style.fontFamily).toBe(expFontFamilies[i]);
-            });
-        };
-    }
-
-    function assertTextFontSizes(expFontSizes) {
-        return function() {
-            var selection = d3.selectAll(WATERFALL_TEXT_SELECTOR);
-            expect(selection.size()).toBe(expFontSizes.length);
-            selection.each(function(d, i) {
-                expect(this.style.fontSize).toBe(expFontSizes[i] + 'px');
-            });
-        };
-    }
-
     it('should show waterfall texts (inside case)', function(done) {
         var data = [{
             y: [10, 20, 30],
@@ -712,13 +690,12 @@ describe('A waterfall plot', function() {
     it('should take waterfall fill opacities into account when calculating contrasting inside text colors', function(done) {
         var trace = {
             x: [5, 10],
-            y: [5, 15],
+            y: [5, -15],
             text: ['Giraffes', 'Zebras'],
             type: 'waterfall',
             textposition: 'inside',
-            marker: {
-                color: ['rgba(0, 0, 0, 0.2)', 'rgba(0, 0, 0, 0.8)']
-            }
+            increasing: { marker: { color: 'rgba(0, 0, 0, 0.2)' } },
+            decreasing: { marker: { color: 'rgba(0, 0, 0, 0.8)' } }
         };
 
         Plotly.plot(gd, [trace])
@@ -734,84 +711,6 @@ describe('A waterfall plot', function() {
           .then(assertTextFontColors(Lib.repeat('#09f', 6)))
           .catch(failTest)
           .then(done);
-    });
-
-    it('should retain text styles throughout selecting and deselecting data points', function(done) {
-        var trace1 = {
-            x: ['giraffes', 'orangutans', 'monkeys'],
-            y: [12, 18, 29],
-            text: [12, 18, 29],
-            type: 'waterfall',
-            textposition: 'inside',
-            textfont: {
-                color: ['red', 'orange'],
-                family: ['Arial', 'serif'],
-                size: [8, 24]
-            },
-            insidetextfont: {
-                color: ['blue'],
-                family: ['Arial'],
-                size: [16]
-            }
-        };
-        var trace2 = Lib.extendDeep({}, trace1, {textposition: 'outside'});
-        var layout = {
-            waterfallmode: 'group',
-            font: {
-                family: 'Roboto',
-                size: 12
-            },
-            clickmode: 'event+select'
-        };
-
-        Plotly.plot(gd, [trace1, trace2], layout)
-          .then(function() {
-              assertNonSelectionModeStyle('before selection');
-          })
-          .then(function() {
-              return select1stWaterfall2ndTrace();
-          })
-          .then(function() {
-              assertSelectionModeStyle('in selection mode');
-          })
-          .then(function() {
-              return deselect1stWaterfall2ndTrace();
-          })
-          .then(function() {
-              assertNonSelectionModeStyle('after selection');
-          })
-          .catch(failTest)
-          .then(done);
-
-        function assertSelectionModeStyle(label) {
-            var unselColor = ['black', '0.2'];
-            assertTextFontColors([unselColor, unselColor, unselColor, 'red', unselColor, unselColor], label)();
-            assertTextFontFamilies(['Arial', 'serif', 'Roboto', 'Arial', 'serif', 'Roboto'])();
-            assertTextFontSizes([16, 24, 12, 8, 24, 12])();
-        }
-
-        function assertNonSelectionModeStyle(label) {
-            assertTextFontColors(['blue', 'orange', LIGHT, 'red', 'orange', DARK], label)();
-            assertTextFontFamilies(['Arial', 'serif', 'Roboto', 'Arial', 'serif', 'Roboto'])();
-            assertTextFontSizes([16, 24, 12, 8, 24, 12])();
-        }
-
-        function select1stWaterfall2ndTrace() {
-            return new Promise(function(resolve) {
-                click(176, 354);
-                resolve();
-            });
-        }
-
-        function deselect1stWaterfall2ndTrace() {
-            return new Promise(function(resolve) {
-                var delayAvoidingDblClick = DBLCLICKDELAY * 1.01;
-                setTimeout(function() {
-                    click(176, 354);
-                    resolve();
-                }, delayAvoidingDblClick);
-            });
-        }
     });
 
     it('should be able to restyle', function(done) {
