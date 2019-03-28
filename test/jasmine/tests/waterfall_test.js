@@ -211,17 +211,27 @@ describe('waterfall calc / crossTraceCalc', function() {
         var gd = mockWaterfallPlot([{
             y: [2, 1, 2]
         }, {
-            y: [3, 1, 2]
+            y: [3, 1, null, 2, null],
+            measure: ['absolute', 'relative', 'total', 'relative', 'total']
         }], {
             waterfallmode: 'overlay'
         });
 
         var cd = gd.calcdata;
-        assertPointField(cd, 'x', [[0, 1, 2], [0, 1, 2]]);
-        assertPointField(cd, 'y', [[2, 3, 5], [3, 4, 6]]);
-        assertPointField(cd, 'b', [[0, 0, 0], [0, 0, 0]]);
-        assertPointField(cd, 's', [[2, 3, 5], [3, 4, 6]]);
-        assertPointField(cd, 'p', [[0, 1, 2], [0, 1, 2]]);
+        assertPointField(cd, 'w', [[0.8, 0.8, 0.8], [0.8, 0.8, 0.8, 0.8, 0.8]]);
+        assertPointField(cd, 'x', [[0, 1, 2], [0, 1, 2, 3, 4]]);
+        assertPointField(cd, 'y', [[2, 3, 5], [3, 4, 4, 6, 6]]);
+        assertPointField(cd, 'b', [[0, 0, 0], [0, 0, 0, 0, 0]]);
+        assertPointField(cd, 's', [[2, 3, 5], [3, 4, 4, 6, 6]]);
+        assertPointField(cd, 'p', [[0, 1, 2], [0, 1, 2, 3, 4]]);
+        assertPointField(cd, 'p0', [[-0.4, 0.6, 1.6], [-0.4, 0.6, 1.6, 2.6, 3.6]]);
+        assertPointField(cd, 'p1', [[0.4, 1.4, 2.4], [0.4, 1.4, 2.4, 3.4, 4.4]]);
+        assertPointField(cd, 's0', [[0, 2, 3], [0, 3, 0, 4, 0]]);
+        assertPointField(cd, 's1', [[2, 3, 5], [3, 4, 4, 6, 6]]);
+        assertPointField(cd, 'isSum', [[false, false, false], [true, false, true, false, true]]);
+        assertPointField(cd, 'rawS', [[2, 1, 2], [3, 1, 0, 2, 0]]);
+        assertPointField(cd, 'dir', [['increasing', 'increasing', 'increasing'], ['totals', 'increasing', 'totals', 'increasing', 'totals']]);
+        assertPointField(cd, 'hasTotals', [[false, undefined, undefined], [true, undefined, undefined, undefined, undefined]]);
         assertTraceField(cd, 't.barwidth', [0.8, 0.8]);
         assertTraceField(cd, 't.poffset', [-0.4, -0.4]);
         assertTraceField(cd, 't.bargroupwidth', [0.8, 0.8]);
@@ -231,7 +241,8 @@ describe('waterfall calc / crossTraceCalc', function() {
         var gd = mockWaterfallPlot([{
             y: [2, 1, 2]
         }, {
-            y: [3, 1, 2]
+            y: [3, 1, null, 2, null],
+            measure: ['absolute', null, 'total', null, 'total']
         }], {
             waterfallmode: 'group',
             // asumming default waterfallgap is 0.2
@@ -239,11 +250,20 @@ describe('waterfall calc / crossTraceCalc', function() {
         });
 
         var cd = gd.calcdata;
-        assertPointField(cd, 'x', [[-0.2, 0.8, 1.8], [0.2, 1.2, 2.2]]);
-        assertPointField(cd, 'y', [[2, 3, 5], [3, 4, 6]]);
-        assertPointField(cd, 'b', [[0, 0, 0], [0, 0, 0]]);
-        assertPointField(cd, 's', [[2, 3, 5], [3, 4, 6]]);
-        assertPointField(cd, 'p', [[0, 1, 2], [0, 1, 2]]);
+        assertPointField(cd, 'w', [[0.36, 0.36, 0.36], [0.36, 0.36, 0.36, 0.36, 0.36]]);
+        assertPointField(cd, 'x', [[-0.2, 0.8, 1.8], [0.2, 1.2, 2.2, 3.2, 4.2]]);
+        assertPointField(cd, 'y', [[2, 3, 5], [3, 4, 4, 6, 6]]);
+        assertPointField(cd, 'b', [[0, 0, 0], [0, 0, 0, 0, 0]]);
+        assertPointField(cd, 's', [[2, 3, 5], [3, 4, 4, 6, 6]]);
+        assertPointField(cd, 'p', [[0, 1, 2], [0, 1, 2, 3, 4]]);
+        assertPointField(cd, 'p0', [[-0.38, 0.62, 1.62], [0.02, 1.02, 2.02, 3.02, 4.02]]);
+        assertPointField(cd, 'p1', [[-0.02, 0.98, 1.98], [0.38, 1.38, 2.38, 3.38, 4.38]]);
+        assertPointField(cd, 's0', [[0, 2, 3], [0, 3, 0, 4, 0]]);
+        assertPointField(cd, 's1', [[2, 3, 5], [3, 4, 4, 6, 6]]);
+        assertPointField(cd, 'isSum', [[false, false, false], [true, false, true, false, true]]);
+        assertPointField(cd, 'rawS', [[2, 1, 2], [3, 1, 0, 2, 0]]);
+        assertPointField(cd, 'dir', [['increasing', 'increasing', 'increasing'], ['totals', 'increasing', 'totals', 'increasing', 'totals']]);
+        assertPointField(cd, 'hasTotals', [[false, undefined, undefined], [true, undefined, undefined, undefined, undefined]]);
         assertTraceField(cd, 't.barwidth', [0.36, 0.36]);
         assertTraceField(cd, 't.poffset', [-0.38, 0.02]);
         assertTraceField(cd, 't.bargroupwidth', [0.8, 0.8]);
@@ -615,11 +635,11 @@ describe('A waterfall plot', function() {
         };
     }
 
-    it('should show waterfall texts (inside case)', function(done) {
+    it('should show texts (inside case)', function(done) {
         var data = [{
             y: [10, 20, 30],
             type: 'waterfall',
-            text: ['1', 'Very very very very very long waterfall text'],
+            text: ['1', 'Very very very very very long text'],
             textposition: 'inside',
         }];
         var layout = {};
@@ -645,11 +665,11 @@ describe('A waterfall plot', function() {
         .then(done);
     });
 
-    it('should show waterfall texts (horizontal case)', function(done) {
+    it('should show texts (horizontal case)', function(done) {
         var data = [{
             x: [10, -20, 30],
             type: 'waterfall',
-            text: ['Very very very very very long waterfall text', -20],
+            text: ['Very very very very very long text', -20],
             textposition: 'outside',
         }];
         var layout = {};
@@ -687,7 +707,7 @@ describe('A waterfall plot', function() {
         }
     };
 
-    it('should take waterfall fill opacities into account when calculating contrasting inside text colors', function(done) {
+    it('should take fill opacities into account when calculating contrasting inside text colors', function(done) {
         var trace = {
             x: [5, 10],
             y: [5, -15],
@@ -1368,11 +1388,11 @@ describe('waterfall hover', function() {
             })
             .then(function() {
                 // you can still hover over the gap (14) but the label will
-                // get pushed in to the waterfall
+                // get pushed in to the bar
                 var out = _hover(gd, 14, 2, 'x');
                 assertPos(out.pos, [145, 155, 110, 110]);
 
-                // in closest mode you must be over the waterfall though
+                // in closest mode you must be over the bar though
                 out = _hover(gd, 14, 2, 'closest');
                 expect(out).toBe(false);
 
